@@ -12,7 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   // const [userName, setUserName] = useState("");
-  const userAuth = useSelector(state => state.auth);
+  // const userAuth = useSelector(state => state.auth);
 
   useEffect(() => {
     authService
@@ -36,11 +36,11 @@ function App() {
           <h5 className="text-red-700"> Start Your Journey with Our Blog"</h5>
         </div>
         <main>
-          <h2 className="text-2xl font-bold text-center">
+{/*           <h2 className="text-2xl font-bold text-center">
             {userAuth.status === true
               ? "Welcome, " + userAuth.userData.name
               : ""}
-          </h2>
+          </h2> */}
 
           <Outlet />
         </main>
