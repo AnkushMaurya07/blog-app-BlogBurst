@@ -2,18 +2,20 @@ import React, { useEffect, useState } from "react";
 import service from "../appwrite/conffig";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { replacePreviewWithView } from "../utils/utils";
 import { Container, Button } from "../components";
 import parse from "html-react-parser";
 
 const Post = () => {
   const [post, setpost] = useState(null);
+  const [updatedUrl, setUpdatedUrl] = useState("");
   const { slug } = useParams();
   const navigate = useNavigate();
-  const userData = useSelector(state => state.auth.userData);
+  const userData = useSelector((state) => state.auth.userData);
   const isAuthor = post && userData ? post.userid === userData.$id : false;
   useEffect(() => {
     if (slug) {
-      service.getPost(slug).then(post => {
+      service.getPost(slug).then((post) => {
         if (post) {
           setpost(post);
         } else {
@@ -24,20 +26,32 @@ const Post = () => {
       navigate("/");
     }
   }, [slug, navigate]);
+
   const deletePost = () => {
-    service.deletePost(post.$id).then(status => {
+    service.deletePost(post.$id).then((status) => {
       if (status) {
         service.deleteFile(post.featuredImage);
         navigate("/");
       }
     });
   };
+
+  useEffect(() => {
+    if (post) {
+      const originalUrl = appwriteService.getFilePreview(
+        post.featuredImage
+      ).href;
+      const newUrl = replacePreviewWithView(originalUrl);
+      setUpdatedUrl(newUrl);
+    }
+  }, [post]);
+
   return post ? (
     <div className="py-8  flex flex-row ">
       <Container>
         <div className="w-full flex justify-center mb-4 relative  rounded-xl p-2">
           <img
-            src={service.getFilePreview(post.featuredImage)}
+            src={updatedUrl}
             alt={post.title}
             className="rounded-xl"
           />
