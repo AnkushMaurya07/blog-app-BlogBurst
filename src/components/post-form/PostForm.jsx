@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button, Input, Select, RTE } from "../index";
 // import Input from '../index'
 // import Select from '../index'
@@ -6,6 +6,7 @@ import { Button, Input, Select, RTE } from "../index";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { replacePreviewWithView } from "../../utils/utils";
 import service from "../../appwrite/conffig";
 
 const PostForm = ({ post }) => {
@@ -18,10 +19,11 @@ const PostForm = ({ post }) => {
         status: post?.status || "active",
       },
     });
+  const [updatedUrl, setUpdatedUrl] = useState("");
   const navigate = useNavigate();
-  const userData = useSelector(state => state.auth.userData);
+  const userData = useSelector((state) => state.auth.userData);
 
-  const submit = async data => {
+  const submit = async (data) => {
     if (post) {
       const file = data.image[0]
         ? await service.uploadFile(data.image[0])
@@ -57,7 +59,7 @@ const PostForm = ({ post }) => {
     }
   };
 
-  const slugTransform = useCallback(value => {
+  const slugTransform = useCallback((value) => {
     if (value && typeof value === "string")
       return value
         .trim()
@@ -79,6 +81,14 @@ const PostForm = ({ post }) => {
     };
   }, [watch, slugTransform, setValue]);
 
+  useEffect(() => {
+        if (post) {
+            const originalUrl = appwriteService.getFilePreview(post.featuredImage).href;
+            const newUrl = replacePreviewWithView(originalUrl);
+            setUpdatedUrl(newUrl);
+        }
+    }, [post]);
+
   return (
     <div>
       <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
@@ -94,7 +104,7 @@ const PostForm = ({ post }) => {
             placeholder="Slug"
             className="mb-4 border-black"
             {...register("slug", { required: true })}
-            onInput={e => {
+            onInput={(e) => {
               setValue("slug", slugTransform(e.currentTarget.value), {
                 shouldValidate: true,
               });
@@ -118,7 +128,7 @@ const PostForm = ({ post }) => {
           {post && (
             <div className="w-full mb-4">
               <img
-                src={service.getFilePreview(post.featuredImage)}
+                src={updatedUrl}
                 alt={post.title}
                 className="rounded-lg"
               />
